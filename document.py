@@ -1,3 +1,4 @@
+import preprocessing as pr
 class Document:
     
     indice=0
@@ -7,6 +8,7 @@ class Document:
         self.date = date
         self.url = url
         self.texte = texte
+        self.words = []
         self.type = self.__class__.__name__
         Document.indice += 1
         
@@ -25,12 +27,17 @@ class Document:
             "nword" : len(text.split(" ")),
             "nsent" : len(text.split("."))
         }
+    def getWords(self):
+        if(len(self.words) == 0):
+            self.words = pr.process(self.texte+" "+self.texte)
+        return self.words
 
     def print(self):
         print("Titre: {}\nDate: {}\nUrl: {}\nTexte: {}".format(self.titre, self.date, self.url, self.texte, ))
-        
+     
     def __str__(self):
         return("Titre: "+self.titre+"\nDate: "+self.date+"\n")
+
     def __repr__(self):
         return("Titre: "+self.titre+"\nDate: "+self.date+"\n"+self.type)
     
