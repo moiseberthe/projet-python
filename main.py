@@ -9,11 +9,11 @@ import time
 tps1 = time.time()
 
 import pandas as pd
-import preprocessing as pr
+import doc.preprocessing as pr
 
-from document import RedditDocument, ArxivDocument
-from author import Author
-from corpus import Corpus
+from doc.document import RedditDocument, ArxivDocument
+from doc.author import Author
+from doc.corpus import Corpus
 
 from scipy.sparse import csr_matrix
 

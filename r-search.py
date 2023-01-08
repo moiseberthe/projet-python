@@ -1,5 +1,5 @@
 import pickle
-import preprocessing as pr
+import doc.preprocessing as pr
 import numpy as np
 from numpy.linalg import norm
 

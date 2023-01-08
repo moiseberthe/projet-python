@@ -1,6 +1,6 @@
 import cgi
 import cgitb
-import preprocessing as pr
+import doc.preprocessing as pr
 
 cgitb.enable()
 form = cgi.FieldStorage()

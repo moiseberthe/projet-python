@@ -12,4 +12,4 @@ handler.cgi_directories = ["/"]
 httpd = server(address, handler)
 
 print (f"Serveur démarré sur le PORT {port}")
-httpd. serve_forever()
+httpd.serve_forever()

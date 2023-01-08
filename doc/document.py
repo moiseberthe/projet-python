@@ -1,4 +1,4 @@
-import preprocessing as pr
+import doc.preprocessing as pr
 class Document:
     
     indice=0
