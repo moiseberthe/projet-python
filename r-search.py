@@ -10,8 +10,8 @@ docs    = data["documents"]
 mat_TF  = data["tf_idf"].toarray()
 
 
-# search_term = input("Recherche : ")
-search_term = "database nosql prometheus"
+search_term = input("Saisisez votre recherche : ")
+# search_term = "database nosql prometheus"
 terms = pr.process(search_term)
 t_mat = []
 for j, word in enumerate(vocab):
@@ -19,13 +19,13 @@ for j, word in enumerate(vocab):
     t_mat.append(tf)
 t_mat = np.array([t_mat])[0]
 
-cos = {}
+similarities = {}
 for i, doc in enumerate(mat_TF):
-    cosine = np.dot(doc, t_mat)/(norm(doc) * norm(t_mat))
-    if cosine > 0:
-        cos[i] = cosine
+    cosine_similarity = np.dot(doc, t_mat)/(norm(doc) * norm(t_mat))
+    if cosine_similarity > 0:
+        similarities[i] = cosine_similarity
 
-cos = dict(sorted(cos.items(), key=lambda item: item[1], reverse=True))
+similarities = dict(sorted(similarities.items(), key=lambda item : item[1], reverse=True))
 
-for key in cos:
-    print(f"%.2f" % cos[key], docs[key].titre)
+for key in similarities:
+    print(f"%.2f" % similarities[key], docs[key].titre)

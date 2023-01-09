@@ -10,6 +10,9 @@ tps1 = time.time()
 
 import pandas as pd
 import doc.preprocessing as pr
+import http.server
+import webbrowser
+import pickle
 
 from doc.document import RedditDocument, ArxivDocument
 from doc.author import Author
@@ -86,11 +89,26 @@ for i, doc in enumerate(corpus_docs):
     mat_TF.append(mat)
 mat_TF = csr_matrix(mat_TF)
 
-import pickle
-
+#  Enregistrement du corpus, de la matrice tf-idf et du vocabulaire dans un fichier pickle
 data = {"documents": corpus.getDocs(), "tf_idf" : mat_TF, "vocab" : vocab}
 with open('data/mat_TF.pkl', 'wb') as file:
     pickle.dump(data, file)
 
+
+
+port = 1234
+address = ("", port)
+
+server = http.server.HTTPServer
+
+handler = http.server.CGIHTTPRequestHandler
+handler.cgi_directories = ["/"]
+
+httpd = server(address, handler)
+
 tps2 = time.time()
 print(f"Temps d'execution %2.fs" % (tps2 - tps1))
+
+print (f"Serveur démarré sur le PORT {port}")
+webbrowser.open(f'http://127.0.0.1:{port}/index.py', 2)
+httpd.serve_forever()
