@@ -25,7 +25,7 @@ html = """
                     <input type="text" name="query" id="query" class="search" placeholder="Rechercher">
                 </div>
                 <div class="submit">
-                    <button type="submit" class="submiter" id="submiter">Réchercher</button>
+                    <button type="submit" class="submiter" id="submiter">Rechercher</button>
                 </div>
             </form>
         </div>
