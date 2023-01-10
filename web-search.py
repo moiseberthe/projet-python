@@ -3,11 +3,12 @@
 """
 import cgi
 import cgitb
-# import sys
-# sys.path.append('../lib')
-import lib.preprocessing as pr
-from lib import *
 import time
+import pickle
+import numpy as np
+
+from lib.document import *
+
 tps1 = time.time()
 
 cgitb.enable()
@@ -16,49 +17,48 @@ form = cgi.FieldStorage()
 if form.getvalue("query"):
     search_term = form.getvalue("query")
 else:
-    raise Exception("Pseudo non disponible")
-## Recherche
-import pickle
-# import preprocessing as pr
-import numpy as np
-from numpy.linalg import norm
+    search_term = ""
 
-with open('data/mat_TF.pkl', 'rb') as file:
-    data = pickle.load(file)
+# Recherche
 
-vocab   = data["vocab"]
-docs    = data["documents"]
-mat_TF  = data["tf_idf"].toarray()
+terms =  Preprocessing.process(search_term)
+items = '<div class="result"><h3>Aucune correspondance.</h3></div>'
+ndoc = 0
 
-
-# search_term = input("Recherche : ")
-# search_term = "database nosql prometheus"
-terms = pr.process(search_term)
-res = 0
-items = """
-    <div class="result">
-        <h3>Aucune correspondance.</h3>
-    </div>"""
 if len(terms) > 0:
-    t_mat = []
+    
+    #  Recuperation des docmuents du corpus, de la matrice tf-idf et du vocabulaire a partir du fichier pickle
+    with open('data/mat_TFIDF.pkl', 'rb') as file:
+        data = pickle.load(file)
 
+    vocab       = data["vocab"]
+    docs        = data["documents"]
+    mat_TFIDF   = data["tf_idf"].toarray()
+
+
+    #  Transformation des mots-clefs de recherche sous la forme d’un vecteur sur le vocabulaire
+    t_mat = []
     for j, word in enumerate(vocab):
         tf = terms.count(word)/len(terms)
         t_mat.append(tf)
-    t_mat = np.array([t_mat])[0]
-
-    cos = {}
-    for i, doc in enumerate(mat_TF):
-        cosine = np.dot(doc, t_mat)/(norm(doc) * norm(t_mat))
-        if cosine > 0:
-            cos[i] = cosine
-
-    cos = dict(sorted(cos.items(), key=lambda item: item[1], reverse=True))
-    ## Fin
-    res = len(cos)
-    if res > 0:
+    t_mat = np.array(t_mat)
+    
+    #  Calcul de la similarité entre le vecteur des mots-clefs et tous les documents à l'aide de la Similarité cosinus
+    doc2cos = {}    #  Dictionnaire avec comme clef l'index du document et comme valeur la similarité
+    seuil = 0       #  Seuil de simularité
+    for i, doc in enumerate(mat_TFIDF):
+        cosine = np.dot(doc, t_mat)/(np.linalg.norm(doc) * np.linalg.norm(t_mat))
+        if cosine > seuil:
+            doc2cos[i] = cosine
+    
+    #  Trie suivant les valeurs de similarité
+    doc2cos = dict(sorted(doc2cos.items(), key=lambda item: item[1], reverse=True))
+    
+    #  Ajout a l'interface graphique
+    ndoc = len(doc2cos)
+    if ndoc > 0:
         items = ""
-        for key in cos:
+        for key in doc2cos:
             d = docs[key]
             items += """
                     <div class="result">
@@ -71,53 +71,8 @@ if len(terms) > 0:
                     """.format(url=d.url, titre=d.titre, content=d.texte[:200])
 
 
-
-print("Content-type: text/html; charset=utf-8")
-style = """
-.container{
-    max-width: 80%;
-    margin: auto;
-}
-.form-elt .search{
-    padding: 16px;
-    border: 1px solid #e4e4e4;
-    border-radius: 32px;
-    width: 100%;
-    outline: none;
-    font-size: 16px;
-}
-.form-elt .search:focus{
-    box-shadow: 0 1px 6px rgb(32 33 36 / 28%);
-}
-.result{
-    padding: 16px;
-}
-.result .link{
-    text-decoration: none;
-    font-size: 16px;
-}
-.r-content{
-    color: #444;
-}
-.r-title {
-    padding-bottom: 8px;
-}
-.separateur{
-    width: 100%;
-    height: 1px;
-    background-color: #e4e4e4;
-    margin: auto;
-}
-.main-title .title{
-    font-size: 18px;
-    color: #444;
-    margin-bottom: 16px;
-    padding: 0 16px;
-    font-weight: 700;
-}
-"""
-
-resultat = "resultats" if res > 1 else "resultat"
+#  Affichage de l'interface graphique
+resultat = "resultats" if ndoc > 1 else "resultat"
 html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -126,13 +81,14 @@ html = """
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moteur de recherche | Resultat</title>
-    <style>{style}</style>
+    <link rel="stylesheet" href="web/search.css">
 </head>
 <body>
     <div class="container">
         <form action="" class="form">
             <div class="form-elt">
                 <input type="text" name="query" id="query" class="search" placeholder="Rechercher" value="{val}" >
+                <button type="submit" class="submit">Rechercher</button>
             </div>
         </form>
         <div class="results">
@@ -144,5 +100,8 @@ html = """
     </div>
 </body>
 </html>
-""".format(nbr=res, style=style, val=search_term, items=items, resultat=resultat, time=time.time()-tps1)
+""".format(nbr=ndoc, val=search_term, items=items, resultat=resultat, time=time.time()-tps1)
+
+print("Content-Type:text/html; charset=utf-8")
+print()
 print(html)

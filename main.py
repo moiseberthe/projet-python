@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on 28/11/2022
@@ -7,18 +6,22 @@ Created on 28/11/2022
 """
 import time
 tps1 = time.time()
-import numpy as np
-from math import log
-import pandas as pd
-import lib.preprocessing as pr
 
-from lib.document import RedditDocument, ArxivDocument
+import pickle
+import http.server
+import webbrowser
+import numpy as np
+import pandas as pd
+
+from lib.document import RedditDocument, ArxivDocument, Preprocessing
 from lib.author import Author
 from lib.corpus import Corpus
 
+from math import log
 from scipy.sparse import csr_matrix
 
-data = pd.read_csv("data/file.csv", header=None, sep=';')
+
+data = pd.read_csv("data/file.csv", encoding="utf-8", header=None, sep=';')
 docs = list(data.values)
 
 id2doc = {}
@@ -30,6 +33,7 @@ for key, doc in enumerate(docs):
     doc_url     = str(doc[2])
     doc_text    = str(doc[3])
     doc_authors = str(doc[4]).split(",")
+    doc_com     = int(doc[5])
     doc_source  = str(doc[-1])
     
     #  Chaine de caractere contenant tous les documents (titre + contenu)
@@ -60,10 +64,9 @@ for key, doc in enumerate(docs):
     
 corpus = Corpus("Le corpus", id2aut, id2doc)
 corpus.setText(all_texte)
-corpus_docs = corpus.getDocs()
 
 #  Transformer le texte en liste de mots
-words = pr.process(all_texte)
+words = Preprocessing.process(all_texte)
 
 #  Stockage du vocabulaire dans un dictionnaire avec les mots en tant que valeur
 vocab = {'mot': words}
@@ -81,7 +84,7 @@ vocab = {words[i]: {"id": i, "freq_corpus": freq[words[i]], "freq_documents": 0}
 
 mat_TF = []
 #  Calcul de la matrice TF
-for i, doc in enumerate(corpus.getDocValues()):
+for i, doc in enumerate(corpus.getDocs()):
     texte = doc.getWords()
     mat = []
     for word in words:
@@ -93,27 +96,22 @@ for i, doc in enumerate(corpus.getDocValues()):
 
 
 #  Calcul de la matrice TFxIDF
-for i, doc in enumerate(corpus.getDocValues()):
+for i, doc in enumerate(corpus.getDocs()):
     for j, word in enumerate(words):
         cond = vocab[word]["freq_documents"] > 0
-        IDF=log(len(corpus.id2doc)/vocab[word]["freq_documents"], 10) if cond else 0
-        mat_TF[i][j]*=IDF
+        IDF = log(len(corpus.id2doc)/vocab[word]["freq_documents"], 10) if cond else 0
+        mat_TF[i][j] *= IDF
 
 mat_TF = csr_matrix(mat_TF)
 
-import pickle
-
-data = {"documents": corpus.getDocValues(), "tf_idf" : mat_TF, "vocab" : vocab}
-with open('data/mat_TF.pkl', 'wb') as file:
+#  Stockage des docmuents du corpus, de la matrice tf-idf et du vocabulaire dans un fichier pickle
+data = {"documents": corpus.getDocs(), "tf_idf" : mat_TF, "vocab" : vocab}
+with open('data/mat_TFIDF.pkl', 'wb') as file:
     pickle.dump(data, file)
 
-tps2 = time.time()
-print(f"Temps d'execution %2.fs" % (tps2 - tps1))
 
-import http.server
-import webbrowser
-
-port = 1234
+#  Lancement d'un server web avec l'interface graphique
+port = 1236
 address = ("", port)
 
 server = http.server.HTTPServer
@@ -123,6 +121,7 @@ handler.cgi_directories = ["/"]
 
 httpd = server(address, handler)
 
+print(f"Temps d'execution %2.fs" % (time.time() - tps1))
 print (f"Serveur démarré sur le PORT {port}\nAdresse: http://127.0.0.1:{port}/index.py")
 webbrowser.open(f'http://127.0.0.1:{port}/index.py', 2)
 httpd. serve_forever()

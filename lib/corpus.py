@@ -26,16 +26,14 @@ class Corpus:
             doc = doc.describe()
             print(f"Document {i}\t# caracteres : {doc['nchar']}\t# mots : {doc['nword']} \t# phrases : {doc['nsent']}\t# type : {doc['type']}")
     
-    def getDocs(self, byDate=True):
+    def getDocs(self, sorted=False, byDate=True):
         newlist = list(self.id2doc.values())
-        if (byDate):    
-            newlist = sorted(newlist, key=lambda x: x.date, reverse=True)
-        else:
-            newlist = sorted(newlist, key=lambda x: x.titre, reverse=False)
+        if(sorted):
+            if (byDate):    
+                newlist = sorted(newlist, key=lambda x: x.date, reverse=True)
+            else:
+                newlist = sorted(newlist, key=lambda x: x.titre, reverse=False)
         return newlist
-    
-    def getDocValues(self):
-        return list(self.id2doc.values())
     
     @staticmethod
     def getInstance(name, authors, id2doc):
