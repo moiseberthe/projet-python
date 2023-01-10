@@ -46,7 +46,7 @@ for doc in arxiv_docs:
         docs.append([doc['title'].replace("\n", " "), doc['published'], doc['link'][0]['@href'], doc['summary'].replace("\n", " "), authors, 0, 'Arxiv'])
         
         
-with open('data/file2.csv', 'w', encoding='utf-8', newline='') as file:
+with open('data/file.csv', 'w', encoding='utf-8', newline='') as file:
     writer = csv.writer(file, quoting=csv.QUOTE_ALL, delimiter=';')
     writer.writerows(docs)
 
