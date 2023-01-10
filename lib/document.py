@@ -102,7 +102,7 @@ class Preprocessing:
         words = text.split()
         #  Suppression des ponctuations
         delpt = re.compile('[%s]' % re.escape(string.punctuation))
-        words = [delpt.sub(' ', w) for w in words]
+        words = [delpt.sub('', w) for w in words]
 
         #  Suppression des chaines initules, des chaines a un caratere et des nombre. Mise en miniscule
         words = [w.lower() for w in words if w not in Preprocessing.stopwords() and len(w) > 2 and w.isalpha()]

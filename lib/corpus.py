@@ -5,6 +5,7 @@ Created on Thu Oct 27 14:24:38 2022
 @authors: moise berthe, lina belhadj
 """
 import re
+import pandas
 class Corpus:
     instance = None
     def __init__(self, name, authors, id2doc):
@@ -34,6 +35,17 @@ class Corpus:
             else:
                 newlist = sorted(newlist, key=lambda x: x.titre, reverse=False)
         return newlist
+        
+    def concorde(self, clef, contexte):
+        txt = self.getText()
+        p = re.compile(clef)
+        res = p.finditer(txt)
+        df = pandas.DataFrame(columns = ['Contexte gauche', 'Motif trouvé', 'Contexte droit'])
+        for r in res:
+            (i, j) = r.span()
+            df.loc[len(df.index)] = [txt[i-contexte:i],  txt[i:j], txt[j:j+contexte]]
+            print (f"Trouvé en pos {i} : {txt[i:j]}")        
+        return df
     
     @staticmethod
     def getInstance(name, authors, id2doc):
