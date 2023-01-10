@@ -40,11 +40,8 @@ class Corpus:
         elif(sort=='date'):
             doc=self.id2doc
             doc=sorted(list(doc.values()), key=lambda doc:doc.date, reverse=False)   
-#        print(doc[:ndocs])
         for i in range(0,ndocs):
             print (f"{doc[i]}, Source: {doc[i].getType()}")       
-#        for i in range(0,ndocs):
- #           print(self.__id2doc[i+1])
 
     def __repr__(self, ndocs):
         return self.id2doc[:ndocs]
@@ -54,11 +51,9 @@ class Corpus:
         txt = ''.join(map(str,self.id2doc.values()))
         p = re.compile(clef)
         res = p.finditer(txt)
-        #print(txt)
         for r in res:
             (i, j) = r.span()
             print (f"Trouvé en pos {i} : {txt[i:j]}")
-        # re.search(clef,txt)
         return
 
 
@@ -70,8 +65,7 @@ class Corpus:
         for r in res:
             (i, j) = r.span()
             #df=df.append({'Contexte gauche' : txt[i-contexte:i] , 'Motif trouvé' : txt[i:j], 'Contexte droit' : txt[j:j+contexte]} , ignore_index=True)
-            df.loc[len(df.index)] = [txt[i-contexte:i],  txt[i:j], txt[j:j+contexte]]
-            print (f"Trouvé en pos {i} : {txt[i:j]}")        
+            df.loc[len(df.index)] = [txt[i-contexte:i],  txt[i:j], txt[j:j+contexte]]     
         return df
 
     def nettoyer_texte(self, chaine):

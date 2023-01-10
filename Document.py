@@ -1,7 +1,6 @@
 class Document:
     
     id=0
-    ###méthodes
     
     def __init__(self, titre, auteur, date, url, texte):
         self.titre=titre
@@ -11,19 +10,10 @@ class Document:
         self.texte=texte
         Document.id+=1
         
-    
         
     def tailleTexte(self):
         return len(self.texte)
         
-    """def print(self):
-        print("Source: " + self.getType +
-              "\nTitre: " + self.titre +
-              "\nAuteur: " + self.auteur+
-              "\nDate: " + self.date+
-              "\nUrl: " + self.url+
-              "\nTexte: " + self.texte+
-              "\n")"""
         
     def __str__(self):
         return f"{self.titre}, par {self.auteur}\n"
@@ -52,15 +42,7 @@ class RedditDocument(Document):
         
     def __str__(self):
         return f"{Document.__str__(self)}, dans le subreddit {self.subreddit}"
-    
-"""    def print(self):
-        return("Subreddit: " + self.subreddit +
-              "\nTitre: " + self.titre +
-              "\nAuteur: " + self.auteur+
-              "\nDate: " + self.date+
-              "\nUrl: " + self.url+
-              "\nTexte: " + self.texte+
-              "\n")"""
+
 
 class ArxivDocument(Document):
     
@@ -85,4 +67,3 @@ class DocumentGenerator:
             return ArxivDocument(titre, auteur, date, url, texte)
         else:
             return Document(titre, auteur, date, url, texte)
-        assert 0, "Erreur : " + type

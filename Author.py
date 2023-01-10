@@ -1,11 +1,9 @@
 class Author:
-#    id=0
-#    ndoc=0
+
     def __init__(self, nom):
         self.__nom=nom
         self.__production={}
         self.__ndoc=0
-#        Author.id+=1
         
     def add(self,document):
         self.__production[document.id]=document
@@ -31,10 +29,8 @@ class Author:
     def __str__(self):
         return ("Nom: "+self.__nom+
                 "\nNombre de documents publiés: "+str(self.__ndoc))
-#    +"\nProduction: "+print(self.__production[Author.ndoc]))
         
     def print(self):
         print ("Nom: "+self.__nom+
                 "\nNombre de documents publiés: "+self.__ndoc)
-#        +"\nProduction: "+print(self.__production[Author.ndoc]))
         
